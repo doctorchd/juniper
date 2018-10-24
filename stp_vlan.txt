@@ -1,0 +1,260 @@
+Configuring STP
+https://www.juniper.net/documentation/en_US/junos/topics/task/configuration/spanning-trees-rstp-ex-series-cli-els.html
+
+{master:0}[edit]
+admin@EX3400# edit ?
+Possible completions:
+...
+> mstp                 Multiple Spanning Tree Protocol options
+...
+> rstp                 Rapid Spanning Tree Protocol options
+...
+> vstp                 VLAN Spanning Tree Protocol options
+ 
+ 
+{master:0}[edit]
+admin@EX3400# run show spanning-tree bridge
+STP bridge parameters
+Routing instance name               : GLOBAL
+Context ID                          : 0
+Enabled protocol                    : RSTP
+  Root ID                           : 0.14:18:77:ea:f3:ec
+  Root cost                         : 20000
+  Root port                         : ge-0/0/47
+  Hello time                        : 2 seconds
+  Maximum age                       : 20 seconds
+  Forward delay                     : 15 seconds
+  Message age                       : 1
+  Number of topology changes        : 1
+  Time since last topology change   : 710 seconds
+  Local parameters
+    Bridge ID                       : 32768.38:4f:49:c8:5e:0c
+    Extended system ID              : 0
+ 
+{master:0}[edit]
+admin@EX3400# edit protocols rstp
+ 
+{master:0}[edit protocols rstp]
+admin@EX3400# set bridge-priority 8k
+ 
+{master:0}[edit protocols rstp]
+admin@EX3400# commit
+configuration check succeeds
+commit complete
+ 
+admin@EX3400# run show spanning-tree bridge
+STP bridge parameters
+Routing instance name               : GLOBAL
+Context ID                          : 0
+Enabled protocol                    : RSTP
+  Root ID                           : 0.14:18:77:ea:f3:ec
+  Root cost                         : 20000
+  Root port                         : ge-0/0/47
+  Hello time                        : 2 seconds
+  Maximum age                       : 20 seconds
+  Forward delay                     : 15 seconds
+  Message age                       : 1
+  Number of topology changes        : 1
+  Time since last topology change   : 812 seconds
+  Local parameters
+    Bridge ID                       : 8192.38:4f:49:c8:5e:0c
+    Extended system ID              : 0
+ 
+ 
+{master:0}[edit protocols rstp]
+admin@EX3400# set interface ge-0/0/0 edge
+ 
+{master:0}[edit protocols rstp]
+admin@EX3400# show
+bridge-priority 8k;
+interface ge-0/0/0 {
+    edge;
+}
+interface ge-0/0/1;
+interface ge-0/0/2;
+...
+Configuring VLANs
+https://www.juniper.net/documentation/en_US/junos/topics/concept/vlans-qfx-series-understanding.html
+
+https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/layer-2/layer2-multicast.html
+
+https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/qfx-series/ethernet-interfaces-switches.html
+
+display state at the beginning
+{master:0}
+admin@EX3400> show vlans brief
+ 
+Routing instance        VLAN name             Tag          Interfaces
+default-switch          default               1
+                                                           ge-0/0/0.0
+                                                           ge-0/0/1.0
+                                                           ge-0/0/10.0
+                                                           ge-0/0/11.0
+                                                           ge-0/0/12.0
+...
+ 
+ 
+{master:0}
+admin@EX3400> show ethernet-switching interface brief
+Routing Instance Name : default-switch
+Logical Interface flags (DL - disable learning, AD - packet action drop,
+                         LH - MAC limit hit, DN - interface down,
+                         MMAS - Mac-move action shutdown,
+                         SCTL - shutdown by Storm-control )
+ 
+Logical          Vlan          TAG     MAC         STP         Logical           Tagging
+interface        members               limit       state       interface flags
+ge-0/0/0.0                             32768                    DN                untagged
+                 default       1       32768       Discarding                     untagged
+Routing Instance Name : default-switch
+Logical Interface flags (DL - disable learning, AD - packet action drop,
+                         LH - MAC limit hit, DN - interface down,
+                         MMAS - Mac-move action shutdown,
+                         SCTL - shutdown by Storm-control )
+ 
+Logical          Vlan          TAG     MAC         STP         Logical           Tagging
+interface        members               limit       state       interface flags
+ge-0/0/1.0                             32768                    DN                untagged
+                 default       1       32768       Discarding                     untagged
+Routing Instance Name : default-switch
+Logical Interface flags (DL - disable learning, AD - packet action drop,
+                         LH - MAC limit hit, DN - interface down,
+                         MMAS - Mac-move action shutdown,
+                         SCTL - shutdown by Storm-control )
+...
+ 
+ 
+{master:0}[edit]
+admin@EX3400# show vlans
+default {
+    vlan-id 1;
+    l3-interface irb.0;
+}
+set default VLAN 999
+{master:0}[edit]
+admin@EX3400# set vlans default vlan-id 999
+ 
+{master:0}[edit]
+admin@EX3400# show vlans
+default {
+    vlan-id 999;
+    l3-interface irb.0;
+}
+create VLANs
+{master:0}[edit]
+admin@EX3400# set vlans SERVICES vlan-id 1
+ 
+{master:0}[edit]
+admin@EX3400# set vlans EDGE vlan-id 20
+ 
+{master:0}[edit]
+admin@EX3400# set vlans QA2 vlan-id 17
+ 
+{master:0}[edit]
+admin@EX3400# show vlans
+EDGE {
+    vlan-id 20;
+}
+QA2 {
+    vlan-id 17;
+}
+SERVICES {
+    vlan-id 1;
+}
+default {
+    vlan-id 999;
+    l3-interface irb.0;
+}
+set VLAN membership
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/0 unit 0 family ethernet-switching vlan members QA2
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/0
+unit 0 {
+    family ethernet-switching {
+        vlan {
+            members QA2;
+        }
+        storm-control default;
+    }
+}
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/47 unit 0 family ethernet-switching vlan members SERVICES
+ 
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/47
+unit 0 {
+    family ethernet-switching {
+        vlan {
+            members SERVICES;
+        }
+        storm-control default;
+    }
+}
+ 
+{master:0}[edit]
+admin@EX3400# run show vlans
+ 
+Routing instance        VLAN name             Tag          Interfaces
+default-switch          EDGE                  20
+ 
+default-switch          QA2                   17
+                                                           ge-0/0/0.0
+default-switch          SERVICES              1
+                                                           ge-0/0/47.0*
+default-switch          default               999
+                                                           ge-0/0/1.0
+                                                           ge-0/0/10.0
+                                                           ge-0/0/11.0
+                                                           ge-0/0/12.0
+...
+configuring IP address on VLANs
+{master:0}[edit]
+admin@EX3400# set vlans SERVICES l3-interface irb.1
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces irb unit 1 family inet address 10.20.1.111/24
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces irb unit 1 family inet6 address 2001:67c:2370:2040::111/64
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces irb unit 0 disable
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces irb
+unit 0 {
+    disable;
+    family inet {
+        dhcp {
+            vendor-id Juniper-ex3400-48t;
+        }
+    }
+}
+unit 1 {
+    family inet {
+        address 10.20.1.111/24;
+    }
+    family inet6 {
+        address 2001:67c:2370:2040::111/64;
+    }
+}
+ 
+admin@EX3400# run ping 10.20.1.1
+PING 10.20.1.1 (10.20.1.1): 56 data bytes
+64 bytes from 10.20.1.1: icmp_seq=0 ttl=255 time=7.137 ms
+...
+ 
+ 
+admin@EX3400# run ping 2001:67c:2370:2040::1
+PING6(56=40+8+8 bytes) 2001:67c:2370:2040::111 --> 2001:67c:2370:2040::1
+16 bytes from 2001:67c:2370:2040::1, icmp_seq=0 hlim=64 time=810.771 ms
+16 bytes from 2001:67c:2370:2040::1, icmp_seq=1 hlim=64 time=3.121 ms
+...
+set default route
+{master:0}[edit]
+admin@EX3400# set routing-options static route 0.0.0.0/0 next-hop 10.20.1.1
+

@@ -1,0 +1,265 @@
+Using netconf session
+{master:0}
+admin@EX3400> show interfaces ge-0/0/0 brief
+Physical interface: ge-0/0/0, Enabled, Physical link is Down
+  Link-level type: Ethernet, MTU: 1514, LAN-PHY mode, Speed: Auto, Duplex: Auto, Loopback: Disabled, Source filtering: Disabled, Flow control: Disabled, Auto-negotiation: Enabled, Remote fault: Online,
+  Media type: Copper, IEEE 802.3az Energy Efficient Ethernet: Disabled
+  Device flags   : Present Running Down
+  Interface flags: Hardware-Down SNMP-Traps Internal: 0x4000
+  Link flags     : None
+ 
+  Logical interface ge-0/0/0.0
+    Flags: Device-Down SNMP-Traps 0x24024000 Encapsulation: Ethernet-Bridge
+    eth-switch
+ 
+ 
+-------------------
+ 
+chd-vdt /data/Work/git/netconf-perl ssh admin@10.20.20.11 -p 830 -s netconf
+Password:
+<!-- No zombies were killed during the creation of this user interface -->
+<!-- user admin, class j-super-user -->
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <capabilities>
+    <capability>urn:ietf:params:netconf:base:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:candidate:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:confirmed-commit:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:validate:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:url:1.0?scheme=http,ftp,file</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:base:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:candidate:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:confirmed-commit:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:validate:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:url:1.0?protocol=http,ftp,file</capability>
+    <capability>http://xml.juniper.net/netconf/junos/1.0</capability>
+    <capability>http://xml.juniper.net/dmi/system/1.0</capability>
+  </capabilities>
+  <session-id>34999</session-id>
+</hello>
+]]>]]>
+ 
+ 
+<rpc>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos">
+ 
+<edit-config>
+ 
+<target><candidate/></target>
+ 
+<config>
+<configuration>
+<interfaces>
+<interface>
+<name>ge-0/0/0</name>
+<disable/>
+</interface>
+</interfaces>
+</configuration>
+<ok/>
+</config>
+ 
+</edit-config>
+</rpc>
+</rpc-reply>
+]]>]]>
+ 
+<rpc>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos">
+ 
+<commit/>
+<commit-results>
+<routing-engine junos:style="normal">
+<name>fpc0</name>
+<commit-check-success/>
+<commit-success/>
+</routing-engine>
+</commit-results>
+<ok/>
+ 
+</rpc>
+</rpc-reply>
+]]>]]>
+ 
+---------------------------
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/0   
+description "TESTING WORKSTATION";
+disable;
+unit 0 {
+    family ethernet-switching {
+        vlan {
+            members QA2;
+        }
+        storm-control default;
+    }
+}
+ 
+---------------------------
+ 
+<rpc>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos">
+<edit-config>
+ 
+<target><candidate/></target>
+ 
+<config>
+<configuration>
+ 
+<interfaces>
+<interface>
+<name>ge-0/0/0</name>
+<disable operation="delete"/>
+</interface>
+</interfaces>
+ 
+</configuration>
+<ok/>
+</config>
+</edit-config>
+</rpc>
+</rpc-reply>
+]]>]]>
+ 
+<rpc>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos">
+<commit/>
+<commit-results>
+<routing-engine junos:style="normal">
+<name>fpc0</name>
+<commit-check-success/>
+<commit-success/>
+</routing-engine>
+</commit-results>
+<ok/>
+</rpc>
+</rpc-reply>
+]]>]]>
+ 
+--------------------------------
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/0   
+description "TESTING WORKSTATION";
+unit 0 {
+    family ethernet-switching {
+        vlan {
+            members QA2;
+        }
+        storm-control default;
+    }
+}
+
+
+Using XML-file and script
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/0
+description "TESTING WORKSTATION";
+unit 0 {
+    family ethernet-switching {
+        vlan {
+            members QA2;
+        }
+        storm-control default;
+    }
+}
+ 
+-----------------------------
+ 
+chd-vdt /data/Work/git/netconf-perl cat examples/edit_configuration/if_down.xml
+<configuration>
+  <interfaces>
+    <interface>
+          <name>ge-0/0/0</name>
+          <disable/>
+        </interface>
+  </interfaces>
+</configuration>
+ 
+ 
+ 
+chd-vdt /data/Work/git/netconf-perl examples/edit_configuration/edit_configuration.pl -l admin -p plinkAdmin examples/edit_configuration/if_down.xml 10.20.20.11
+Locking configuration database ...
+Loading configuration from examples/edit_configuration/if_down.xml
+ 
+ 
+<configuration>
+  <interfaces>
+    <interface>
+          <name>ge-0/0/0</name>
+          <disable/>
+        </interface>
+  </interfaces>
+</configuration>
+ 
+  
+ 
+Committing the <edit-config> changes ...
+Disconnecting from the Netconf server ...
+Disconnecting
+ at examples/edit_configuration/edit_configuration.pl line 105
+REQUEST succeeded !!
+ 
+----------------------------
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/0   
+description "TESTING WORKSTATION";
+disable;
+unit 0 {
+    family ethernet-switching {
+        vlan {
+            members QA2;
+        }
+        storm-control default;
+    }
+}
+ 
+----------------------------
+ 
+chd-vdt /data/Work/git/netconf-perl cat examples/edit_configuration/if_up.xml 
+<configuration>
+  <interfaces>
+    <interface>
+          <name>ge-0/0/0</name>
+          <disable operation="delete"/>
+        </interface>
+  </interfaces>
+</configuration>
+ 
+chd-vdt /data/Work/git/netconf-perl examples/edit_configuration/edit_configuration.pl -l admin -p plinkAdmin examples/edit_configuration/if_up.xml 10.20.20.11
+Locking configuration database ...
+Loading configuration from examples/edit_configuration/if_up.xml
+ 
+ 
+<configuration>
+  <interfaces>
+    <interface>
+          <name>ge-0/0/0</name>
+          <disable operation="delete"/>
+        </interface>
+  </interfaces>
+</configuration>
+ 
+  
+ 
+Committing the <edit-config> changes ...
+Disconnecting from the Netconf server ...
+Disconnecting
+ at examples/edit_configuration/edit_configuration.pl line 105
+REQUEST succeeded !!
+ 
+--------------------------
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/0   
+description "TESTING WORKSTATION";
+unit 0 {
+    family ethernet-switching {
+        vlan {
+            members QA2;
+        }
+        storm-control default;
+    }
+}
+

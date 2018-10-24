@@ -1,0 +1,152 @@
+Firmware version
+root@:RE:0% cli
+{master:0}
+root> show version
+fpc0:
+--------------------------------------------------------------------------
+Model: ex3400-48t
+Junos: 15.1X53-D56
+JUNOS OS Kernel 32-bit  [20170413.348470_builder_head]
+JUNOS OS libs [20170413.348470_builder_head]
+JUNOS OS runtime [20170413.348470_builder_head]
+JUNOS OS time zone information [20170413.348470_builder_head]
+JUNOS py extensions [20170413.101346_builder_junos_151_x53_d56]
+JUNOS py base [20170413.101346_builder_junos_151_x53_d56]
+JUNOS OS crypto [20170413.348470_builder_head]
+JUNOS network stack and utilities [20170413.101346_builder_junos_151_x53_d56]
+JUNOS libs [20170413.101346_builder_junos_151_x53_d56]
+JUNOS runtime [20170413.101346_builder_junos_151_x53_d56]
+JUNOS Web Management Platform Package [20170413.101346_builder_junos_151_x53_d56]
+JUNOS ex libs [20170413.101346_builder_junos_151_x53_d56]
+JUNOS ex runtime [20170413.101346_builder_junos_151_x53_d56]
+JUNOS ex platform support [20170413.101346_builder_junos_151_x53_d56]
+JUNOS modules [20170413.101346_builder_junos_151_x53_d56]
+JUNOS ex modules [20170413.101346_builder_junos_151_x53_d56]
+JUNOS Data Plane Crypto Support [20170413.101346_builder_junos_151_x53_d56]
+JUNOS mtx Data Plane Crypto Support [20170413.101346_builder_junos_151_x53_d56]
+JUNOS daemons [20170413.101346_builder_junos_151_x53_d56]
+JUNOS Packet Forwarding Engine Support (EX34XX) [20170413.101346_builder_junos_151_x53_d56]
+JUNOS jdocs ex [20170413.101346_builder_junos_151_x53_d56]
+JUNOS jail runtime [20170413.348470_builder_head]
+JUNOS FIPS mode utilities [20170413.101346_builder_junos_151_x53_d56]
+Create admin account
+root# edit system login
+ 
+{master:0}[edit system login]
+root# set user admin class super-user
+ 
+{master:0}[edit system login]
+root# set user admin authentication plain-text-password
+New password: plinkAdmin
+Retype new password: plinkAdmin
+ 
+{master:0}[edit system login]
+root# show
+user admin {
+    class super-user;
+    authentication {
+        encrypted-password "$5$SuL0a/3w$Tv1h9rMG10W4ngncyHGEINcBvkVGqHuPsIhHhzooMK0"; ## SECRET-DATA
+    }
+}
+ 
+{master:0}[edit system login]
+root# commit
+configuration check succeeds
+commit complete
+ 
+{master:0}[edit system login]
+root# exit
+ 
+{master:0}[edit]
+root# exit
+Exiting configuration mode
+ 
+{master:0}
+root> exit
+ 
+root@:RE:0% exit
+logout
+ 
+FreeBSD/arm (Amnesiac) (ttyu0)
+ 
+login: admin
+Password:
+ 
+--- JUNOS 15.1X53-D56 Kernel 32-bit  JNPR-11.0-20170413.348470_build
+{master:0}
+admin>
+Check current state
+admin> show chassis routing-engine
+Routing Engine status:
+  Slot 0:
+    Current state                  Master
+    Temperature                 34 degrees C / 93 degrees F
+    CPU temperature             34 degrees C / 93 degrees F
+    DRAM                      1951 MB
+    Memory utilization          37 percent
+    5 sec CPU utilization:
+      User                       3 percent
+      Background                 0 percent
+      Kernel                     3 percent
+      Interrupt                  0 percent
+      Idle                      94 percent
+    Model                          RE-EX3400-48T
+    Serial ID                      BUILTIN
+    Uptime                         21 minutes, 19 seconds
+    Last reboot reason             0x1:power cycle/failure
+    Load averages:                 1 minute   5 minute  15 minute
+                                       0.22       0.22       0.23
+ 
+{master:0}
+admin> show system storage
+fpc0:
+--------------------------------------------------------------------------
+Filesystem              Size       Used      Avail  Capacity   Mounted on
+/dev/md0.uzip            18M        18M         0B      100%  /
+devfs                   1.0K       1.0K         0B      100%  /dev
+/dev/gpt/junos          1.3G       362M       895M       29%  /.mount
+devfs                   1.0K       1.0K         0B      100%  /.mount/dev
+/dev/md1.uzip            19M        19M         0B      100%  /.mount/packages/mnt/os-libs-11
+/dev/md2.uzip            19M        19M         0B      100%  /.mount/packages/mnt/os-runtime
+tmpfs                   1.1G        12K       1.1G        0%  /.mount/tmp
+procfs                  4.0K       4.0K         0B      100%  /.mount/proc
+/dev/md3.uzip           1.6M       1.6M         0B      100%  /.mount/packages/mnt/os-zoneinfo32-7acf8edb
+/dev/md4.uzip           4.6M       4.6M         0B      100%  /.mount/packages/mnt/py-extensions32-0563f1a3
+/dev/md5.uzip            13M        13M         0B      100%  /.mount/packages/mnt/py-base32-26e85274
+/dev/md6.uzip           6.1M       6.1M         0B      100%  /.mount/packages/mnt/os-crypto
+/dev/md7.uzip           4.0M       4.0M         0B      100%  /.mount/packages/mnt/junos-net
+/dev/md8.uzip            54M        54M         0B      100%  /.mount/packages/mnt/junos-libs
+/dev/md9.uzip           284M       284M         0B      100%  /.mount/packages/mnt/junos-runtime
+/dev/md10                18M        18M         0B      100%  /.mount/packages/mnt/jweb-ex32-95cff311
+/var/jail/etc           1.3G       362M       895M       29%  /.mount/packages/mnt/jweb-ex32-95cff311/jail/var/etc
+/var/jail/run           1.3G       362M       895M       29%  /.mount/packages/mnt/jweb-ex32-95cff311/jail/var/run
+/var/jail/tmp           1.3G       362M       895M       29%  /.mount/packages/mnt/jweb-ex32-95cff311/jail/var/tmp
+/var/tmp                1.3G       362M       895M       29%  /.mount/packages/mnt/jweb-ex32-95cff311/jail/var/tmp/uploads
+devfs                   1.0K       1.0K         0B      100%  /.mount/packages/mnt/jweb-ex32-95cff311/jail/dev
+/dev/md11                15M        15M         0B      100%  /.mount/packages/mnt/jweb-ex32-95cff311/jail/rt
+/var/jail/jweb-app       1.3G       362M       895M      29%  /.mount/packages/mnt/jweb-ex32-95cff311/jail/var/jweb-app
+/dev/md12.uzip          146K       146K         0B      100%  /.mount/packages/mnt/junos-libs-ex
+/dev/md13.uzip           33M        33M         0B      100%  /.mount/packages/mnt/junos-runtime-ex
+/dev/md14.uzip           29M        29M         0B      100%  /.mount/packages/mnt/junos-platform-ex
+/dev/md15.uzip          420K       420K         0B      100%  /.mount/packages/mnt/junos-modules32-d6a71fa3
+/dev/md16.uzip          844K       844K         0B      100%  /.mount/packages/mnt/junos-modules-ex32-9df893cb
+/dev/md17.uzip          4.7M       4.7M         0B      100%  /.mount/packages/mnt/junos-dp-crypto-support32-46f8167a
+/dev/md18.uzip           10M        10M         0B      100%  /.mount/packages/mnt/junos-dp-crypto-support-mtx32-e3a0b5a9
+/dev/md19.uzip          7.1M       7.1M         0B      100%  /.mount/packages/mnt/junos-daemons32-834ac667
+/dev/md20.uzip          126M       126M         0B      100%  /.mount/packages/mnt/jpfe-EX34XX32-0ffc6435
+/dev/md21.uzip           11M        11M         0B      100%  /.mount/packages/mnt/jdocs-ex32-f023f7e7
+/dev/md22.uzip          6.1M       6.1M         0B      100%  /.mount/packages/mnt/fips-mode32-149e0125
+tmpfs                   325M        17M       308M        5%  /.mount/mfs
+Set hostname
+admin# set system domain-name TARAS.CRP
+ 
+{master:0}[edit]
+admin# set system host-name EX3400
+ 
+{master:0}[edit]
+admin# commit
+configuration check succeeds
+commit complete
+ 
+{master:0}[edit]
+admin@EX3400#

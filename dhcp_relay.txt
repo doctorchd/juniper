@@ -1,0 +1,94 @@
+Configuring DHCP relay
+https://www.juniper.net/documentation/en_US/junos/topics/example/dhcp-subscriber-access-dhcp-relay-minimum-configuration.html
+
+https://www.juniper.net/documentation/en_US/junos/topics/usage-guidelines/policy-configuring-routers-or-interfaces-as-dhcp-and-bootp-relay-agents.html
+
+https://www.juniper.net/documentation/en_US/junos/topics/concept/dhcp-extended-dhcpv6-relay-overview.html
+
+{master:0}[edit]
+admin@EX3400# edit forwarding-options dhcp-relay
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# set server-group TARAS 10.20.1.71
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# set active-server-group TARAS
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# set group QA2 interface irb.17
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# show
+server-group {
+    TARAS {
+        10.20.1.71;
+    }
+}
+active-server-group TARAS;
+group QA2 {
+    interface irb.17;
+}
+ 
+ 
+ 
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# set dhcpv6 server-group TARAS 2001:67c:2370:2040::71
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# set dhcpv6 active-server-group TARAS
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# set dhcpv6 group QA2 interface irb.17
+ 
+ 
+{master:0}[edit forwarding-options dhcp-relay]
+admin@EX3400# show
+dhcpv6 {
+    group QA2 {
+        interface irb.17;
+    }
+    server-group {
+        TARAS {
+            2001:67c:2370:2040::71;
+        }
+    }
+    active-server-group TARAS;
+}
+server-group {
+    TARAS {
+        10.20.1.71;
+    }
+}
+active-server-group TARAS;
+group QA2 {
+    interface irb.17;
+}
+ 
+ 
+ 
+ 
+{master:0}[edit]
+admin@EX3400# edit protocols router-advertisement
+ 
+{master:0}[edit protocols router-advertisement]
+admin@EX3400# set interface irb.17 managed-configuration other-stateful-configuration
+ 
+ 
+{master:0}[edit protocols router-advertisement]
+admin@EX3400# show
+interface irb.17 {
+    managed-configuration;
+    other-stateful-configuration;
+}
+ 
+ 
+{master:0}
+admin@EX3400> show dhcp relay binding
+IP address        Session Id  Hardware address   Expires     State      Interface
+10.20.17.100      3           b8:2a:72:a3:8d:cf  84605       BOUND      irb.17
+ 
+admin@EX3400> show dhcpv6 relay binding
+Prefix                  Session Id  Expires  State    Interface    Client DUID
+2001:67c:2370:2017::1:7b/128 4      2591347  BOUND    irb.17       LL_TIME0x1-0x218e2589-b8:2a:72:a3:8d:cf
+

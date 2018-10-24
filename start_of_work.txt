@@ -1,0 +1,48 @@
+Thu Jan  1 00:02:20 UTC 1970
+FreeBSD/arm (Amnesiac) (ttyu0)
+login: root
+Last login: Fri Jan  2 00:14:54 on ttyu0
+ 
+--- JUNOS 15.1X53-D56 Kernel 32-bit  JNPR-11.0-20170413.348470_build
+root@:RE:0%
+root@:RE:0%
+root@:RE:0% cli
+{master:0}
+root> request system zeroize
+ 
+ 
+warning: System will be rebooted and may not boot without configuration
+Erase all data, including configuration and log files? [yes,no] (no) yes
+[... reboot ...]
+ 
+Thu Jan  1 00:04:17 UTC 1970
+FreeBSD/arm (Amnesiac) (ttyu0)
+login: root
+--- JUNOS 15.1X53-D56 Kernel 32-bit  JNPR-11.0-20170413.348470_build
+root@:RE:0%
+ 
+root@:RE:0% cli
+{master:0}
+root>
+root> configure
+Entering configuration mode
+ 
+{master:0}[edit]
+root# set system root-authentication plain-text-password
+New password: rootBeer
+Retype new password: rootBeer
+ 
+{master:0}[edit]
+root#
+root# delete chassis auto-image-upgrade
+ 
+ 
+{master:0}[edit]
+root# commit
+ 
+{master:0}[edit]
+root# quit
+Exiting configuration mode
+ 
+{master:0}
+root>

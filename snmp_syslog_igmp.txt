@@ -1,0 +1,90 @@
+SNMP
+https://www.juniper.net/documentation/en_US/junos/topics/example/snmp-config-cli-qfx-series.html
+
+{master:0}[edit]
+admin@EX3400# set snmp community public authorization read-only
+ 
+{master:0}[edit]
+admin@EX3400# set snmp community private authorization read-write
+ 
+ 
+ 
+chd-vdt ~ snmpwalk -v2c -c public 10.20.20.11 sysdescr
+SNMPv2-MIB::sysDescr.0 = STRING: Juniper Networks, Inc. ex3400-48t Ethernet Switch, kernel JUNOS 15.1X53-D56, Build date: 2017-04-13 11:08:33 UTC Copyright (c) 1996-2017 Juniper Networks, Inc.
+Syslog
+https://www.juniper.net/documentation/en_US/junos/topics/example/syslog-messages-configuring-qfx-series.html
+
+{master:0}[edit]
+admin@EX3400# set system syslog host 10.20.9.9 any info
+ 
+ 
+ 
+chd-vdt /home/chd tcpdump -nnn -c 100 udp and port 514
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on eth0, link-type EN10MB (Ethernet), capture size 65535 bytes
+10:20:00.011060 IP 10.20.20.11.514 > 10.20.9.9.514: SYSLOG user.error, length: 56
+10:20:00.011601 IP 10.20.20.11.514 > 10.20.9.9.514: SYSLOG cron.info, length: 81
+10:20:00.015341 IP 10.20.20.11.514 > 10.20.9.9.514: SYSLOG cron.info, length: 84
+10:20:03.631506 IP 10.20.20.11.514 > 10.20.9.9.514: SYSLOG user.error, length: 180
+Save config on TFTP
+{master:0}
+admin@EX3400> start shell
+% cd /config
+% tftp 10.20.1.19
+tftp> put juniper.conf.gz
+Sent 1762 bytes during 0.1 seconds in 4 blocks
+tftp> quit
+% exit
+exit
+Get config via FTP
+{master:0}[edit]
+admin@EX3400# set system services ftp
+ 
+ 
+ 
+chd-vdt /home/chd ftp 10.20.20.11
+Connected to 10.20.20.11 (10.20.20.11).
+220 EX3400 FTP server (Version 6.00LS) ready.
+Name (10.20.20.11:root): admin
+331 Password required for admin.
+Password:
+230 User admin logged in.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ 
+ 
+ftp> cd /config
+250 CWD command successful.
+ 
+ftp> get juniper.conf.gz
+local: juniper.conf.gz remote: juniper.conf.gz
+227 Entering Passive Mode (10,20,20,11,250,56)
+150 Opening BINARY mode data connection for 'juniper.conf.gz' (1752 bytes).
+226 Transfer complete.
+1752 bytes received in 0.0035 secs (501.29 Kbytes/sec)
+ 
+ftp> bye
+221 Goodbye.
+ 
+ 
+chd-vdt /home/chd zcat juniper.conf.gz | head
+## Last changed: 2018-10-16 10:19:10 EEST
+version 15.1X53-D56;
+groups {
+    global {
+        system {
+            services {
+                ssh;
+            }
+        }
+    }
+...
+Get config with SCP
+chd-vdt /home/chd scp admin@10.20.20.11:/config/juniper.conf.gz .
+The authenticity of host '10.20.20.11 (10.20.20.11)' can't be established.
+RSA key fingerprint is 97:84:34:c8:aa:62:c8:56:e4:4f:1f:cf:5a:47:5c:bc.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '10.20.20.11' (RSA) to the list of known hosts.
+Password:
+juniper.conf.gz                                                                       100% 1752     1.7KB/s   00:00
+

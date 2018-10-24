@@ -1,0 +1,189 @@
+Enabling SSH access
+https://www.juniper.net/documentation/en_US/junos/topics/task/configuration/remote-access.html
+
+{master:0}[edit]
+admin@EX3400# edit groups global
+ 
+{master:0}[edit groups global]
+admin@EX3400# set system services ssh
+ 
+{master:0}[edit groups global]
+admin@EX3400# top
+ 
+{master:0}[edit]
+admin@EX3400# set apply-groups global
+ 
+{master:0}[edit]
+admin@EX3400# commit
+configuration check succeeds
+commit complete
+As alternative to system login users:
+
+{master:0}[edit]
+admin@EX3400# show system login
+user admin {
+    uid 2000;
+    class super-user;
+    authentication {
+        encrypted-password "$5$SuL0a/3w$Tv1h9rMG10W4ngncyHGEINcBvkVGqHuPsIhHhzooMK0"; ## SECRET-DATA
+    }
+}
+it is possible to create user in groups global (see https://www.juniper.net/documentation/en_US/junos/topics/task/configuration/authentication-user-accounts-configuring.html):
+
+user@host# show groups
+global {
+    system {
+        login {
+            user admin {
+                uid 9999;
+            }
+        }
+    }
+}
+Configure VLAN17
+admin@EX3400> show vlans QA2
+ 
+Routing instance        VLAN name             Tag          Interfaces
+default-switch          QA2                   17
+                                                           ge-0/0/0.0
+ 
+{master:0}[edit]
+admin@EX3400# set vlans QA2 l3-interface irb.17
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces irb unit 17 family inet address 10.20.17.1/24
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces irb unit 17 family inet6 address 2001:67c:2370:2017::1/64
+ 
+admin@EX3400# show interfaces irb
+unit 0 {
+    disable;
+    family inet {
+        dhcp {
+            vendor-id Juniper-ex3400-48t;
+        }
+    }
+}
+unit 1 {
+    family inet {
+        address 10.20.1.111/24;
+    }
+    family inet6 {
+        address 2001:67c:2370:2040::111/64;
+    }
+}
+unit 17 {
+    family inet {
+        address 10.20.17.1/24;
+    }
+    family inet6 {
+        address 2001:67c:2370:2017::1/64;
+    }
+}
+Configure time
+admin@EX3400> show system uptime
+fpc0:
+--------------------------------------------------------------------------
+Current time: 1970-01-03 22:52:09 UTC
+Time Source:  LOCAL CLOCK
+System booted: 1970-01-01 00:00:00 UTC (2d 22:52 ago)
+Protocols started: 1970-01-01 00:02:15 UTC (2d 22:49 ago)
+Last configured: 1970-01-03 22:36:08 UTC (00:16:01 ago) by admin
+10:52PM  up 2 days, 22:52, 2 users, load averages: 0.30, 0.25, 0.19
+ 
+{master:0}[edit]
+admin@EX3400# edit system ntp
+ 
+{master:0}[edit system ntp]
+admin@EX3400# set boot-server 10.20.1.11
+ 
+{master:0}[edit system ntp]
+admin@EX3400# set server 10.20.1.11
+ 
+admin@EX3400# run show ntp status
+status=c035 sync_alarm, sync_unspec, 3 events, event_clock_reset,
+version="ntpd 4.2.0-a Thu Apr 13 10:55:48  2017 (1)", processor="arm",
+system="FreeBSDJNPR-11.0-20170413.348470_build", leap=11, stratum=16,
+precision=-18, rootdelay=0.000, rootdispersion=0.420, peer=0,
+refid=STEP, reftime=00000000.00000000  Thu, Feb  7 2036  6:28:16.000,
+poll=4, clock=df5374c6.11abcc07  Mon, Sep 24 2018 14:35:50.069, state=3,
+offset=0.000, frequency=0.000, jitter=0.004, stability=0.000
+ 
+{master:0}[edit system ntp]
+admin@EX3400# run show ntp associations
+   remote         refid           st t when poll reach   delay   offset  jitter
+===============================================================================
+ 10.20.1.11       .STEP.          16 -  887   64    0    0.000    0.000 4000.00
+ 
+{master:0}[edit system]
+admin@EX3400# set time-zone Europe/Kiev
+ 
+admin@EX3400# run show system uptime
+fpc0:
+--------------------------------------------------------------------------
+Current time: 2018-09-24 17:38:38 EEST
+Time Source:  NTP CLOCK
+System booted: 2018-09-21 18:36:42 EEST (2d 23:01 ago)
+Protocols started: 2018-09-21 18:38:57 EEST (2d 22:59 ago)
+Last configured: 2018-09-24 17:38:22 EEST (00:00:16 ago) by admin
+ 5:38PM  up 2 days, 23:02, 2 users, load averages: 0.33, 0.31, 0.23
+Configuring VLAN trunk and VLAN 20
+{master:0}[edit]
+admin@EX3400# set interfaces ge0/0/47 unit 0 family ethernet-switching interface-mode trunk
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/47 native-vlan-id 1
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/47 unit 0 family ethernet-switching vlan members EDGE
+ 
+{master:0}[edit]
+admin@EX3400# show interfaces ge-0/0/47
+native-vlan-id 1;
+unit 0 {
+    family ethernet-switching {
+        interface-mode trunk;
+        vlan {
+            members [ SERVICES EDGE ];
+        }
+        storm-control default;
+    }
+}
+ 
+{master:0}[edit]
+admin@EX3400# set vlans EDGE l3-interface irb.20
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces irb unit 20 family inet address 10.20.20.11/24
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces irb unit 20 family inet6 address 2001:67c:2370:2020::11/64
+ 
+ 
+ 
+{master:0}[edit]
+admin@EX3400# show routing-options
+static {
+    route 0.0.0.0/0 next-hop 10.20.1.1;
+}
+ 
+{master:0}[edit]
+admin@EX3400# delete routing-options static route 0.0.0.0/0
+ 
+{master:0}[edit]
+admin@EX3400# set routing-options static route 0.0.0.0/0 next-hop 10.20.20.1
+ 
+{master:0}[edit]
+admin@EX3400# set routing-options rib inet6.0 static route ::/0 next-hop 2001:67c:2370:2020::1
+ 
+{master:0}[edit]
+admin@EX3400# show routing-options
+rib inet6.0 {
+    static {
+        route ::/0 next-hop 2001:67c:2370:2020::1;
+    }
+}
+static {
+    route 0.0.0.0/0 next-hop 10.20.20.1;
+}

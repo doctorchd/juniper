@@ -1,0 +1,194 @@
+Testing multicast
+https://www.juniper.net/documentation/en_US/junos/topics/example/igmp-snooping-ex-series-configuring-els.html
+
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/1 unit 0 family ethernet-switching vlan members QA2
+ 
+ 
+{master:0}[edit]
+admin@EX3400# set protocols rstp interface ge-0/0/1 disable
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/1 description "MULTICAST INPUT"
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/0 description "TESTING WORKSTATION"
+ 
+{master:0}[edit]
+admin@EX3400# set interfaces ge-0/0/47 description "UPLINK"
+ 
+CENTRAL-SWITCH# conf
+CENTRAL-SWITCH(config)# int eth g35
+CENTRAL-SWITCH(config-if)# switchport mode access
+CENTRAL-SWITCH(config-if)# switchport access vlan 20
+CENTRAL-SWITCH(config-if)# spanning-tree disable
+CENTRAL-SWITCH(config-if)# no shu
+CENTRAL-SWITCH(config-if)#
+CENTRAL-SWITCH# sh vlan tag 20
+ 
+Vlan       Name                   Ports                Type     Authorization
+---- ----------------- --------------------------- ------------ -------------
+ 20        MCAST             g(33-35,38),ch1        permanent     Required
+ 
+CENTRAL-SWITCH# show interfaces counters eth g35
+ 
+      Port       InUcastPkts  InMcastPkts  InBcastPkts    InOctets
+---------------- ------------ ------------ ------------ ------------
+      g35             0            28           2           3594
+ 
+      Port       OutUcastPkts OutMcastPkts OutBcastPkts  OutOctets
+---------------- ------------ ------------ ------------ ------------
+      g35             0          564578         1        768956982
+ 
+ 
+ 
+ 
+ 
+{master:0}
+admin@EX3400> monitor interface ge-0/0/1
+ 
+Interface: ge-0/0/1, Enabled, Link is Up
+Encapsulation: Ethernet, Speed: 1000mbps
+Traffic statistics:                                              Current delta
+  Input bytes:                2800820199 (152842568 bps)          [1350811643]
+  Output bytes:                     7046 (432 bps)                      [2377]
+  Input packets:                 2056420 (14027 pps)                  [991789]
+  Output packets:                     51 (0 pps)                          [10]
+Error statistics:
+  Input errors:                        0                                   [0]
+  Input drops:                         0                                   [0]
+  Input framing errors:                1                                   [0]
+  Policed discards:                    0                                   [0]
+  L3 incompletes:                      0                                   [0]
+  L2 channel errors:                   0                                   [0]
+  L2 mismatch timeouts:                0                                   [0]
+  Carrier transitions:                 1                                   [0]
+  Output errors:                       0                                   [0]
+  Output drops:                        0                                   [0]
+  Aged packets:                        0                                   [0]
+Active alarms : None
+Active defects: None
+Input MAC/Filter statistics:
+  Unicast packets                      0                                   [0]
+  Broadcast packets                    4                                   [2]
+  Multicast packets              2056416                              [991787]
+  Oversized frames                     0                                   [0]
+  Packet reject count                  0  DA rejects                       [0]
+ 
+ 
+ 
+{master:0}[edit]
+admin@EX3400# set protocols igmp-snooping vlan QA2 immediate-leave
+ 
+{master:0}[edit]
+admin@EX3400# set protocols igmp-snooping vlan QA2 interface ge-0/0/47 multicast-router-interface
+ 
+admin@EX3400> show igmp snooping membership interface ge-0/0/1
+Instance: default-switch
+ 
+Vlan: default
+ 
+Learning-Domain: default
+ 
+Vlan: QA2
+ 
+Learning-Domain: default
+Interface: ge-0/0/1.0, Groups: 9
+    Group: 239.255.1.1
+        Group mode: Exclude
+        Source: 0.0.0.0
+        Last reported by: 172.20.0.27
+        Group timeout:     205 Type: Dynamic
+    Group: 239.255.1.2
+        Group mode: Exclude
+        Source: 0.0.0.0
+        Last reported by: 172.20.0.27
+        Group timeout:     206 Type: Dynamic
+    Group: 239.255.1.3
+        Group mode: Exclude
+        Source: 0.0.0.0
+        Last reported by: 172.20.0.27
+        Group timeout:     204 Type: Dynamic
+...
+Configuring OSPF
+https://www.juniper.net/documentation/en_US/junos/topics/example/ospf-single-area-configuring.html
+
+{master:0}[edit]
+admin@EX3400# set protocols ospf area 0.0.0.0 interface irb.20
+ 
+admin@EX3400# commit
+[edit protocols]
+  'ospf'
+    warning: requires 'ospf2' license
+configuration check succeeds
+commit complete
+ 
+RT.TARAS.CRP(config)#router ospf 1
+RT.TARAS.CRP(config-router)#no passive-interface gigabitEthernet 0/0.20
+ 
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+10.20.1.111     128   FULL/DR         00:00:38    10.20.20.11     GigabitEthernet0/0.20
+...
+ 
+ 
+{master:0}[edit]
+admin@EX3400# set protocols ospf3 area 0.0.0.0 interface irb.20
+ 
+{master:0}[edit]
+admin@EX3400# commit
+[edit protocols]
+  'ospf'
+    warning: requires 'ospf2' license
+[edit protocols]
+  'ospf3'
+    warning: requires 'ospf3' license
+configuration check succeeds
+commit complete
+ 
+RT.TARAS.CRP(config)#int gi 0/0.20
+RT.TARAS.CRP(config-subif)#ipv6 ospf 1 area 0.0.0.0
+ 
+RT.TARAS.CRP#sh ipv6 ospf neighbor
+ 
+Neighbor ID     Pri   State           Dead Time   Interface ID    Interface
+10.20.1.111     128   FULL/DR         00:00:37    1               GigabitEthernet0/0.20
+...
+ 
+ 
+{master:0}
+admin@EX3400> show route protocol ospf2
+ 
+inet.0: 89 destinations, 90 routes (89 active, 0 holddown, 0 hidden)
++ = Active Route, - = Last Active, * = Both
+ 
+10.0.23.16/28      *[OSPF/10] 00:08:34, metric 1002
+                    > to 10.20.20.1 via irb.20
+10.2.0.0/16        *[OSPF/150] 00:08:34, metric 100000, tag 0
+                    > to 10.20.20.1 via irb.20
+10.2.0.0/24        *[OSPF/10] 00:08:34, metric 1004
+                    > to 10.20.20.1 via irb.20
+10.20.1.0/24        [OSPF/10] 00:08:34, metric 2
+                    > to 10.20.20.1 via irb.20
+...
+ 
+{master:0}
+admin@EX3400> show route protocol ospf3
+ 
+inet.0: 89 destinations, 90 routes (89 active, 0 holddown, 0 hidden)
+ 
+inet6.0: 34 destinations, 36 routes (34 active, 0 holddown, 0 hidden)
++ = Active Route, - = Last Active, * = Both
+ 
+2001:57b:1000:1::/64
+                   *[OSPF3/150] 00:01:47, metric 20, tag 0
+                    > to fe80::1 via irb.20
+2001:57b:1000:3::/64
+                   *[OSPF3/10] 00:01:47, metric 1003
+                    > to fe80::1 via irb.20
+2001:57b:1000:8::/64
+                   *[OSPF3/150] 00:01:47, metric 20, tag 0
+                    > to fe80::1 via irb.20
+2001:57b:1000:ffff::/127
+                   *[OSPF3/10] 00:01:47, metric 11002
+                    > to fe80::1 via irb.20
+...

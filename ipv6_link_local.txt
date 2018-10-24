@@ -1,0 +1,74 @@
+{master:0}[edit]
+admin@EX3400# edit interfaces irb
+ 
+{master:0}[edit interfaces irb]
+admin@EX3400# show unit 17
+family inet {
+    address 10.20.17.1/24;
+}
+family inet6 {
+    address 2001:67c:2370:2017::1/64;
+}
+ 
+{master:0}[edit interfaces irb]
+admin@EX3400# set unit 17 family inet6 address fe80::1/64
+ 
+{master:0}[edit interfaces irb]
+admin@EX3400# show unit 17
+family inet {
+    address 10.20.17.1/24;
+}
+family inet6 {
+    address 2001:67c:2370:2017::1/64;
+    address fe80::1/64;
+}
+ 
+{master:0}
+admin@EX3400> show interfaces irb.17
+  Logical interface irb.17 (Index 602) (SNMP ifIndex 610)
+    Flags: Up SNMP-Traps 0x4000 Encapsulation: ENET2
+    Bandwidth: 1000mbps
+    Routing Instance: default-switch Bridging Domain: QA2
+    Input packets : 671747
+    Output packets: 452910
+    Protocol inet, MTU: 1500
+      Flags: Sendbcast-pkt-to-re
+      Addresses, Flags: Is-Preferred Is-Primary
+        Destination: 10.20.17/24, Local: 10.20.17.1, Broadcast: 10.20.17.255
+    Protocol inet6, MTU: 1500
+    Max nh cache: 75000, New hold nh limit: 75000, Curr nh cnt: 1, Curr new hold cnt: 0, NH drop cnt: 0
+      Flags: None
+      Addresses, Flags: Is-Preferred Is-Primary
+        Destination: 2001:67c:2370:2017::/64, Local: 2001:67c:2370:2017::1
+      Addresses, Flags: Is-Preferred
+        Destination: fe80::/64, Local: fe80::1
+PS C:\WINDOWS\system32> ipconfig /renew6
+ 
+Windows IP Configuration
+...
+Ethernet adapter Ethernet:
+ 
+   Connection-specific DNS Suffix  . : dyn.taras.crp
+   IPv6 Address. . . . . . . . . . . : 2001:67c:2370:2017::1:7b
+   Link-local IPv6 Address . . . . . : fe80::a813:b4ab:a27a:f1d0%9
+   IPv4 Address. . . . . . . . . . . : 10.20.17.100
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : fe80::1%9
+                                       10.20.17.1
+...
+ 
+ 
+PS C:\WINDOWS\system32> ping fe80::1
+ 
+Pinging fe80::1 with 32 bytes of data:
+Reply from fe80::1: time=1ms
+Reply from fe80::1: time=2ms
+Reply from fe80::1: time=1ms
+Reply from fe80::1: time=2ms
+ 
+Ping statistics for fe80::1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 1ms, Maximum = 2ms, Average = 1ms
+PS C:\WINDOWS\system32>
+

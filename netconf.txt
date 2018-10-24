@@ -1,0 +1,324 @@
+Using netconf
+https://www.juniper.net/documentation/en_US/junos/information-products/pathway-pages/netconf-guide/netconf.html
+
+https://github.com/Juniper/netconf-perl/tree/master/examples
+
+https://www.juniper.net/documentation/en_US/junos/topics/example/netconf-traceoptions-configuring.html
+
+https://www.juniper.net/documentation/en_US/junos/topics/concept/netconf-perl-client-module-and-sample-scripts-overview.html
+
+Installation
+chd-vdt ~ cd work/git
+ 
+ 
+chd-vdt ~/work/git yum install cpan
+chd-vdt ~/work/git yum install libxml2-devel
+chd-vdt ~/work/git cpan Net::Netconf
+chd-vdt /data/Work/git yum install perl-YAML
+ 
+ 
+ 
+ 
+ 
+ 
+chd-vdt ~/work/git git clone https://github.com/Juniper/netconf-perl.git
+chd-vdt ~/work/git cd netconf-perl
+Testing
+Enabling Netconf over SSH
+{master:0}[edit]
+admin@EX3400# edit system services
+ 
+{master:0}[edit system services]
+admin@EX3400# set netconf ssh
+
+
+Getting info from the switch
+chd-vdt /data/Work/git/netconf-perl chmod 755 examples/get_system_information.pl
+chd-vdt /data/Work/git/netconf-perl vicf  get_examples/system_information.pl
+ 
+--- /var/local/oldconf/data/Work/git/netconf-perl/examples/get_system_information.pl.181014:1352        2018-10-11 10:50:10.381976447 +0300
++++ get_system_information.pl   2018-10-14 13:53:11.967025591 +0300
+@@ -1,3 +1,5 @@
++#!/usr/bin/perl -I lib
++
+ ################################################################
+ # get_system_information.pl
+ #
+ 
+ 
+chd-vdt /data/Work/git/netconf-perl examples/get_system_information.pl
+ 
+Options:
+ 
+ hostname : hostname of target router
+ username : A login name accepted by the target router.
+ password : The password for the login name
+ 
+hostname:  10.20.20.11
+ 
+username: admin
+ 
+password: plinkAdmin
+Connection established: 31532
+Server request is :
+ <rpc message-id='1'>
+  <get-system-information/>
+</rpc>
+ 
+ Server response is:
+ <rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos" message-id='1'>
+<system-information>
+<hardware-model>ex3400-48t</hardware-model>
+<os-name>junos</os-name>
+<os-version>15.1X53-D56</os-version>
+<serial-number>NX0217290124</serial-number>
+<host-name>EX3400</host-name>
+</system-information>
+</rpc-reply>
+ 
+  
+Rpc reply from server.
+>>>>>>>>>>
+<<<<<<<<<<
+ 
+ using XML::LibXMl::DOM function
+inside dom object
+hardware information  ex3400-48t
+os-name  junos
+host-name  EX3400
+ 
+ using xpath
+inside dom object
+hardware information  ex3400-48t
+os-name  junos
+host-name  EX3400
+Disconnecting
+ at examples/get_system_information.pl line 107
+Get chassis inventory
+chd-vdt /data/Work/git/netconf-perl vicf examples/get_chassis_inventory/get_chassis_inventory.pl
+ 
+--- /var/local/oldconf/data/Work/git/netconf-perl/get_chassis_inventory.pl.181014:1405  2018-10-11 10:50:10.381976447 +0300
++++ examples/get_chassis_inventory/get_chassis_inventory.pl     2018-10-14 14:05:52.761791938 +0300
+@@ -1,3 +1,5 @@
++#!/usr/bin/perl -I lib
++
+ ################################################################
+ # get_chassis_inventory.pl
+ #
+ 
+ 
+ 
+chd-vdt /data/Work/git/netconf-perl examples/get_chassis_inventory/get_chassis_inventory.pl
+Usage: examples/get_chassis_inventory/get_chassis_inventory.pl [options] <target>
+ 
+Where:
+ 
+  <target>   The hostname of the target router.
+ 
+Options:
+ 
+  -l <login>    A login name accepted by the target router.
+  -p <password> The password for the login name.
+  -m <access>   Access method. The only supported method is 'ssh'.
+  -f <xmlfile>  The name of the XML file to print server response to.
+                Default: xsl/chassis_inventory.xml
+  -o <filename> output is written to this file instead of standard output.
+  -d <level>    Debug level [1-6]
+ 
+ at examples/get_chassis_inventory/get_chassis_inventory.pl line 52
+        main::output_usage() called at examples/get_chassis_inventory/get_chassis_inventory.pl line 86
+ 
+ 
+ 
+chd-vdt /data/Work/git/netconf-perl examples/get_chassis_inventory/get_chassis_inventory.pl -l admin -p plinkAdmin 10.20.20.11
+Server request:
+ <rpc message-id='1'>
+  <get-chassis-inventory>
+    <detail/>
+  </get-chassis-inventory>
+</rpc>
+ 
+ Server response:
+ <rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos" message-id='1'>
+<chassis-inventory xmlns="http://xml.juniper.net/junos/15.1X53/junos-chassis">
+<chassis style="inventory">
+<name>Chassis</name>
+<serial-number>NX0217290124</serial-number>
+<description>EX3400-48T</description>
+<chassis-module>
+<name>Pseudo CB 0</name>
+</chassis-module>
+<chassis-module>
+<name>Routing Engine 0</name>
+<part-number>BUILTIN</part-number> 
+<serial-number>BUILTIN</serial-number>
+<description>RE-EX3400-48T</description>
+<clei-code>CMMUU10ARB</clei-code>  
+<model-number>EX3400-48T</model-number>
+<chassis-re-disk-module>
+<name>da0</name>
+<disk-size>1906</disk-size>
+<model>USB DISK 2.0</model>
+<serial-number></serial-number>
+<description>Nand Flash</description>
+</chassis-re-disk-module>
+</chassis-module>
+<chassis-module>
+<name>FPC 0</name>
+<version>REV 17</version>
+<part-number>650-059881</part-number>
+<serial-number>NX0217290124</serial-number>
+<description>EX3400-48T</description>
+<clei-code>CMMUU10ARB</clei-code>  
+<model-number>EX3400-48T</model-number>
+<chassis-sub-module>
+<name>CPU</name>
+<part-number>BUILTIN</part-number> 
+<serial-number>BUILTIN</serial-number>
+<description>FPC CPU</description>
+</chassis-sub-module>
+<chassis-sub-module>
+<name>PIC 0</name>
+<version>REV 17</version>
+<part-number>BUILTIN</part-number>
+<serial-number>BUILTIN</serial-number>
+<description>48x10/100/1000 Base-T</description>
+<clei-code>CMMUU10ARB</clei-code>  
+<model-number>EX3400-48T</model-number>
+</chassis-sub-module>
+<chassis-sub-module>
+<name>PIC 1</name>
+<version>REV 17</version>
+<part-number>650-059881</part-number>
+<serial-number>NX0217290124</serial-number>
+<description>2x40G QSFP</description>
+<clei-code>CMMUU10ARB</clei-code>  
+<model-number>EX3400-48T</model-number>
+</chassis-sub-module>
+<chassis-sub-module>
+<name>PIC 2</name>
+<version>REV 17</version>
+<part-number>650-059881</part-number>
+<serial-number>NX0217290124</serial-number>
+<description>4x10G SFP/SFP+</description>
+<clei-code>CMMUU10ARB</clei-code>  
+<model-number>EX3400-48T</model-number>
+</chassis-sub-module>
+</chassis-module>
+<chassis-module>
+<name>Power Supply 0</name>
+<version>REV 05</version>
+<part-number>640-060603</part-number>
+<serial-number>1EDV7277801</serial-number>
+<description>JPSU-150W-AC-AFO</description>
+<clei-code>CMUPAEHBAA</clei-code>  
+<model-number>JPSU-150-AC-AFO</model-number>
+</chassis-module>
+<chassis-module>
+<name>Fan Tray 0</name>
+<description>Fan Module, Airflow Out (AFO)</description>
+</chassis-module>
+<chassis-module>
+<name>Fan Tray 1</name>
+<description>Fan Module, Airflow Out (AFO)</description>
+</chassis-module>
+</chassis>
+</chassis-inventory>
+</rpc-reply>
+ 
+ 
+Server Response:Disconnecting
+ at examples/get_chassis_inventory/get_chassis_inventory.pl line 165
+Arbitrary netconf session
+chd-vdt /data/Work/git/netconf-perl ssh admin@10.20.20.11 -p 830 -s netconf
+The authenticity of host '[10.20.20.11]:830 ([10.20.20.11]:830)' can't be established.
+RSA key fingerprint is 97:84:34:c8:aa:62:c8:56:e4:4f:1f:cf:5a:47:5c:bc.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '[10.20.20.11]:830' (RSA) to the list of known hosts.
+Password:
+<!-- No zombies were killed during the creation of this user interface -->
+<!-- user admin, class j-super-user -->
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+  <capabilities>
+    <capability>urn:ietf:params:netconf:base:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:candidate:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:confirmed-commit:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:validate:1.0</capability>
+    <capability>urn:ietf:params:netconf:capability:url:1.0?scheme=http,ftp,file</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:base:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:candidate:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:confirmed-commit:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:validate:1.0</capability>
+    <capability>urn:ietf:params:xml:ns:netconf:capability:url:1.0?protocol=http,ftp,file</capability>
+    <capability>http://xml.juniper.net/netconf/junos/1.0</capability>
+    <capability>http://xml.juniper.net/dmi/system/1.0</capability>
+  </capabilities>
+  <session-id>33561</session-id>
+</hello>
+]]>]]>
+ 
+<rpc>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos">
+<edit-config>
+<target>
+<candidate/>
+</target>
+<config>
+<configuration>
+<system>
+<services>
+<ftp/>
+</services>
+</system>
+</configuration>
+<ok/>
+</config>
+</edit-config>
+</rpc>
+</rpc-reply>
+]]>]]>
+ 
+<rpc>
+<rpc-reply xmlns="urn:ietf:params:xml:ns:netconf:base:1.0" xmlns:junos="http://xml.juniper.net/junos/15.1X53/junos">
+<commit/>
+<commit-results>
+
+
+admin@EX3400> show configuration system services
+netconf {
+    ssh;
+}
+ 
+----------------
+ 
+chd-vdt /data/Work/git/netconf-perl examples/edit_configuration/edit_configuration.pl -l admin -p plinkAdmin examples/edit_configuration/config.xml 10.20.20.11
+Locking configuration database ...
+Loading configuration from examples/edit_configuration/config.xml
+ 
+ 
+<configuration>
+  <system>
+        <services>
+              <ftp/>
+        </services>
+  </system>
+</configuration>
+ 
+ 
+  
+ 
+Committing the <edit-config> changes ...
+Disconnecting from the Netconf server ...
+Disconnecting
+ at examples/edit_configuration/edit_configuration.pl line 105
+REQUEST succeeded !!
+ 
+--------------------
+ 
+{master:0}
+admin@EX3400> show configuration system services   
+ftp;
+netconf {
+    ssh;
+}
+
